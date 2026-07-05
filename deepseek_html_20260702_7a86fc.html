@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Библия — Синодальный перевод</title>
+
+    <!-- PWA Manifest (встроенный) -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%91%D0%B8%D0%B1%D0%BB%D0%B8%D1%8F%20%D0%A1%D0%B8%D0%BD%D0%BE%D0%B4%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%22%2C%22short_name%22%3A%22%D0%91%D0%B8%D0%B1%D0%BB%D0%B8%D1%8F%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23faf8f5%22%2C%22theme_color%22%3A%22%235e3e1c%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%253E%253Crect%20x%3D'28'%20y%3D'8'%20width%3D'8'%20height%3D'48'%20fill%3D'%25235e3e1c'%20%2F%253E%253Crect%20x%3D'12'%20y%3D'24'%20width%3D'40'%20height%3D'8'%20fill%3D'%25235e3e1c'%20%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%2264x64%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
+    <!-- Иконки -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='28' y='8' width='8' height='48' fill='%235e3e1c' /%3E%3Crect x='12' y='24' width='40' height='8' fill='%235e3e1c' /%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='28' y='8' width='8' height='48' fill='%235e3e1c' /%3E%3Crect x='12' y='24' width='40' height='8' fill='%235e3e1c' /%3E%3C/svg%3E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Библия">
+    <meta name="theme-color" content="#5e3e1c">
+
+    <style>
+        :root {
+            --bg: #faf8f5;
+            --text: #2c2416;
+            --card: #ffffff;
+            --border: #b4a182;
+            --accent: #5e3e1c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Liberation Serif', 'Times New Roman', serif;
+            line-height: 1.7;
+            min-height: 100vh;
+            padding: 16px; /* Уменьшено для мобильных */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+            background: var(--card);
+            padding: 24px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e2d9cc;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #3a2e1e;
+            margin-bottom: 4px;
+            font-weight: normal;
+            font-size: clamp(1.8rem, 5vw, 2.2rem);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6e5e48;
+            font-style: italic;
+            margin-bottom: 20px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        .book-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+            justify-content: center;
+        }
+
+        .book-btn {
+            padding: 8px 14px;
+            border: 1px solid #cbb99b;
+            background: #fffcf7;
+            color: #4d3820;
+            border-radius: 24px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(94,62,28,0.1);
+        }
+
+        .book-btn:active { background: #f4ede3; }
+
+        .book-btn.active {
+            background: #5e3e1c;
+            color: #fef9f0;
+            border-color: #5e3e1c;
+            font-weight: bold;
+        }
+
+        .chapter-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 12px 0;
+            justify-content: center;
+            padding: 8px;
+            background: rgba(180, 161, 130, 0.08);
+            border-radius: 10px;
+        }
+
+        .chapter-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #ccbc9e;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: #5e3e1c;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .chapter-btn.active {
+            background: #5e3e1c;
+            color: white;
+            border-color: #5e3e1c;
+            font-weight: bold;
+        }
+
+        .bible-text { margin-top: 16px; }
+
+        .bible-text h2 {
+            text-align: center;
+            color: #5e3e1c;
+            font-weight: normal;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px dotted #d8cdb8;
+            font-size: 1.3rem;
+        }
+
+        .verse {
+            margin: 4px 0;
+            padding: 6px 10px;
+            border-left: 2px solid transparent;
+            transition: background-color 0.15s, border-color 0.15s;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            word-break: break-word;
+        }
+
+        .verse:active {
+            background: rgba(180, 161, 130, 0.1);
+        }
+
+        .verse-num {
+            color: #8b6e4b;
+            font-weight: bold;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            vertical-align: super;
+        }
+
+        .search-box { margin: 16px 0; }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 1px solid #cfc0a9;
+            border-radius: 28px;
+            background: #fffcf8;
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: #8b6e4b;
+            box-shadow: 0 0 0 3px rgba(94, 62, 28, 0.08);
+        }
+
+        .search-box input::placeholder {
+            color: #b3a187;
+            font-style: italic;
+        }
+
+        .error {
+            color: #a1513c;
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #8e806a;
+            font-style: italic;
+        }
+
+        mark { background: #f3e0b0; padding: 0 2px; }
+
+        .help-box {
+            background: #fcf9f4;
+            border: 1px solid #d4c5a9;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            color: #50442e;
+        }
+        .help-box code { background: #f0e8d8; padding: 2px 6px; border-radius: 4px; }
+
+        .search-info {
+            text-align: center;
+            font-style: italic;
+            color: #7a6a51;
+            margin: 6px 0;
+        }
+
+        /* Футер */
+        .footer {
+            max-width: 860px;
+            width: 100%;
+            text-align: center;
+            padding: 12px 16px;
+            color: #6e5e48;
+            font-size: 0.85rem;
+            border-top: 1px solid #d8cdb8;
+            background: #fdfaf6;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .footer a {
+            color: #5e3e1c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover { text-decoration: underline; }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: #fffdf7;
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+            padding: 24px 18px 16px;
+            max-width: 95vw;
+            width: 450px;
+            position: relative;
+            border: 1px solid #dacfb4;
+            font-family: inherit;
+            color: #2c2416;
+            background-image: radial-gradient(circle at 50% 50%, rgba(180,161,130,0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            border-bottom: 1px solid #e2d9cc;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            line-height: 1;
+            color: #8b7a5c;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .modal-verse-ref {
+            font-size: 0.85rem;
+            color: #6e5e48;
+            margin-bottom: 8px;
+            font-style: italic;
+            border-bottom: 1px dotted #d4c5a0;
+            padding-bottom: 6px;
+        }
+
+        .modal-verse-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin: 14px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fcf8f0;
+            border: 1px solid #e8ddcc;
+            transition: background-color 0.2s;
+        }
+
+        .palette {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 14px 0 6px;
+            flex-wrap: wrap;
+        }
+
+        .palette-label {
+            width: 100%;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6e5e48;
+            margin-bottom: 2px;
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #dbcfb4;
+            cursor: pointer;
+            transition: transform 0.1s, border-color 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .color-btn:active { transform: scale(1.1); }
+        .color-btn.active-color {
+            border-color: #3a2e1e;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3a2e1e;
+        }
+
+        .color-none { background: #fff; border: 2px solid #dbcfb4; }
+        .color-yellow { background: #fcf4b9; }
+        .color-green { background: #cee8c1; }
+        .color-blue { background: #c8e0f8; }
+        .color-pink { background: #f5d6dc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Библия</h1>
+        <p class="subtitle">Синодальный перевод</p>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Поиск...">
+        </div>
+
+        <div class="book-list" id="bookList">
+            <div class="loading">Загрузка...</div>
+        </div>
+
+        <div class="chapter-nav" id="chapterNav" style="display:none;"></div>
+
+        <div class="bible-text" id="bibleText">
+            <div class="loading">Загрузка Библии...</div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="footer">
+        Поддержка: <a href="mailto:kiriliva01@list.ru">kiriliva01@list.ru</a> | tg: <a href="https://t.me/ivakisrr" target="_blank" rel="noopener">@ivakisrr</a>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="verseModal">
+        <div class="modal-card">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <div class="modal-verse-ref" id="modalRef"></div>
+            <div class="modal-verse-text" id="modalText"></div>
+            <div class="palette">
+                <div class="palette-label">Выделение:</div>
+                <div class="color-btn color-none" data-color="none" title="Без выделения"></div>
+                <div class="color-btn color-yellow" data-color="#fcf4b9" title="Жёлтый"></div>
+                <div class="color-btn color-green" data-color="#cee8c1" title="Зелёный"></div>
+                <div class="color-btn color-blue" data-color="#c8e0f8" title="Голубой"></div>
+                <div class="color-btn color-pink" data-color="#f5d6dc" title="Розовый"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== Service Worker (PWA) ====================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                const swCode = `
+                    const CACHE_NAME = 'bible-v1';
+                    const ASSETS = [
+                        './',
+                        'https://raw.githubusercontent.com/thiagobodruk/bible/refs/heads/master/json/ru_synodal.json'
+                    ];
+
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+                        );
+                    });
+
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request).then(cached => {
+                                const network = fetch(event.request).then(response => {
+                                    const clone = response.clone();
+                                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                                    return response;
+                                });
+                                return cached || network;
+                            })
+                        );
+                    });
+
+                    self.addEventListener('activate', event => {
+                        event.waitUntil(
+                            caches.keys().then(keys => Promise.all(
+                                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+                            ))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        // ==================== Основной код ====================
+        function debug(msg) { console.log(msg); }
+
+        const bibleBooks = {
+            'Быт': { enAbbrev: 'Gen', enName: 'Genesis' },
+            'Исх': { enAbbrev: 'Ex', enName: 'Exodus' },
+            'Лев': { enAbbrev: 'Lev', enName: 'Leviticus' },
+            'Чис': { enAbbrev: 'Num', enName: 'Numbers' },
+            'Втор': { enAbbrev: 'Deut', enName: 'Deuteronomy' },
+            'Нав': { enAbbrev: 'Josh', enName: 'Joshua' },
+            'Суд': { enAbbrev: 'Judg', enName: 'Judges' },
+            'Руфь': { enAbbrev: 'Ruth', enName: 'Ruth' },
+            '1Цар': { enAbbrev: '1Sam', enName: '1 Samuel' },
+            '2Цар': { enAbbrev: '2Sam', enName: '2 Samuel' },
+            '3Цар': { enAbbrev: '1Kings', enName: '1 Kings' },
+            '4Цар': { enAbbrev: '2Kings', enName: '2 Kings' },
+            '1Пар': { enAbbrev: '1Chr', enName: '1 Chronicles' },
+            '2Пар': { enAbbrev: '2Chr', enName: '2 Chronicles' },
+            'Езд': { enAbbrev: 'Ezra', enName: 'Ezra' },
+            'Неем': { enAbbrev: 'Neh', enName: 'Nehemiah' },
+            'Есф': { enAbbrev: 'Esth', enName: 'Esther' },
+            'Иов': { enAbbrev: 'Job', enName: 'Job' },
+            'Пс': { enAbbrev: 'Ps', enName: 'Psalms' },
+            'Притч': { enAbbrev: 'Prov', enName: 'Proverbs' },
+            'Еккл': { enAbbrev: 'Eccl', enName: 'Ecclesiastes' },
+            'Песн': { enAbbrev: 'Song', enName: 'Song of Solomon' },
+            'Ис': { enAbbrev: 'Isa', enName: 'Isaiah' },
+            'Иер': { enAbbrev: 'Jer', enName: 'Jeremiah' },
+            'Плач': { enAbbrev: 'Lam', enName: 'Lamentations' },
+            'Иез': { enAbbrev: 'Ezek', enName: 'Ezekiel' },
+            'Дан': { enAbbrev: 'Dan', enName: 'Daniel' },
+            'Ос': { enAbbrev: 'Hos', enName: 'Hosea' },
+            'Иоил': { enAbbrev: 'Joel', enName: 'Joel' },
+            'Ам': { enAbbrev: 'Amos', enName: 'Amos' },
+            'Авд': { enAbbrev: 'Obad', enName: 'Obadiah' },
+            'Иона': { enAbbrev: 'Jonah', enName: 'Jonah' },
+            'Мих': { enAbbrev: 'Mic', enName: 'Micah' },
+            'Наум': { enAbbrev: 'Nah', enName: 'Nahum' },
+            'Авв': { enAbbrev: 'Hab', enName: 'Habakkuk' },
+            'Соф': { enAbbrev: 'Zeph', enName: 'Zephaniah' },
+            'Агг': { enAbbrev: 'Hag', enName: 'Haggai' },
+            'Зах': { enAbbrev: 'Zech', enName: 'Zechariah' },
+            'Мал': { enAbbrev: 'Mal', enName: 'Malachi' },
+            'Мф': { enAbbrev: 'Matt', enName: 'Matthew' },
+            'Мк': { enAbbrev: 'Mark', enName: 'Mark' },
+            'Лк': { enAbbrev: 'Luke', enName: 'Luke' },
+            'Ин': { enAbbrev: 'John', enName: 'John' },
+            'Деян': { enAbbrev: 'Acts', enName: 'Acts' },
+            'Иак': { enAbbrev: 'James', enName: 'James' },
+            '1Пет': { enAbbrev: '1Pet', enName: '1 Peter' },
+            '2Пет': { enAbbrev: '2Pet', enName: '2 Peter' },
+            '1Ин': { enAbbrev: '1John', enName: '1 John' },
+            '2Ин': { enAbbrev: '2John', enName: '2 John' },
+            '3Ин': { enAbbrev: '3John', enName: '3 John' },
+            'Иуд': { enAbbrev: 'Jude', enName: 'Jude' },
+            'Рим': { enAbbrev: 'Rom', enName: 'Romans' },
+            '1Кор': { enAbbrev: '1Cor', enName: '1 Corinthians' },
+            '2Кор': { enAbbrev: '2Cor', enName: '2 Corinthians' },
+            'Гал': { enAbbrev: 'Gal', enName: 'Galatians' },
+            'Еф': { enAbbrev: 'Eph', enName: 'Ephesians' },
+            'Флп': { enAbbrev: 'Phil', enName: 'Philippians' },
+            'Кол': { enAbbrev: 'Col', enName: 'Colossians' },
+            '1Фес': { enAbbrev: '1Thess', enName: '1 Thessalonians' },
+            '2Фес': { enAbbrev: '2Thess', enName: '2 Thessalonians' },
+            '1Тим': { enAbbrev: '1Tim', enName: '1 Timothy' },
+            '2Тим': { enAbbrev: '2Tim', enName: '2 Timothy' },
+            'Тит': { enAbbrev: 'Titus', enName: 'Titus' },
+            'Флм': { enAbbrev: 'Phlm', enName: 'Philemon' },
+            'Евр': { enAbbrev: 'Heb', enName: 'Hebrews' },
+            'Откр': { enAbbrev: 'Rev', enName: 'Revelation' }
+        };
+
+        function getBookEnName(book) {
+            const abbrev = book.abbrev || '';
+            if (bibleBooks[abbrev]) return bibleBooks[abbrev].enName;
+            return book.name || book.book || book.title || abbrev || 'Unknown';
+        }
+
+        function getBookEnAbbrev(book) {
+            const abbrev = book.abbrev || '';
+            if (bibleBooks[abbrev]) return bibleBooks[abbrev].enAbbrev;
+            return abbrev || 'Unknown';
+        }
+
+        function findBibleBooks(data) {
+            const knownAbbrevs = Object.keys(bibleBooks);
+            if (Array.isArray(data)) {
+                const filtered = data.filter(item => item.abbrev && knownAbbrevs.includes(item.abbrev));
+                if (filtered.length > 0) return filtered;
+                const byName = data.filter(item => {
+                    const name = (item.name || item.book || '').toLowerCase();
+                    return Object.values(bibleBooks).some(info => name.includes(info.enName.toLowerCase()));
+                });
+                if (byName.length > 0) return byName;
+                return data;
+            }
+            if (typeof data === 'object' && data !== null) {
+                if (data.books) return findBibleBooks(data.books);
+                if (data.bible) return findBibleBooks(data.bible);
+                for (const key of Object.keys(data)) {
+                    if (Array.isArray(data[key])) return findBibleBooks(data[key]);
+                }
+            }
+            return [];
+        }
+
+        function getChapters(book) {
+            if (book.chapters && Array.isArray(book.chapters)) return book.chapters;
+            if (book.verses && Array.isArray(book.verses)) return [book.verses];
+            if (book.text && Array.isArray(book.text)) return book.text;
+            for (const key of Object.keys(book)) {
+                if (Array.isArray(book[key]) && key !== 'abbrev' && key !== 'name') {
+                    return book[key];
+                }
+            }
+            return [];
+        }
+
+        function getVerseText(verse) {
+            if (typeof verse === 'string') return verse;
+            if (verse.text) return verse.text;
+            if (verse.content) return verse.content;
+            if (verse.v) return verse.v;
+            return String(verse);
+        }
+
+        function getVerseNumber(verse, index) {
+            if (typeof verse === 'string') return index + 1;
+            if (verse.verse) return verse.verse;
+            if (verse.number) return verse.number;
+            if (verse.vnum) return verse.vnum;
+            return index + 1;
+        }
+
+        let allBooks = [];
+        let currentBookIndex = 0;
+        let currentChapter = 0;
+        let searchIndex = [];
+        const highlights = new Map();
+
+        function highlightKey(bookIdx, chapterIdx, verseIdx) {
+            return `${bookIdx}_${chapterIdx}_${verseIdx}`;
+        }
+
+        function getHighlightColor(bookIdx, chapterIdx, verseIdx) {
+            return highlights.get(highlightKey(bookIdx, chapterIdx, verseIdx)) || '';
+        }
+
+        function setHighlightColor(bookIdx, chapterIdx, verseIdx, color) {
+            const key = highlightKey(bookIdx, chapterIdx, verseIdx);
+            if (color && color !== 'none') {
+                highlights.set(key, color);
+            } else {
+                highlights.delete(key);
+            }
+            const elements = document.querySelectorAll(`.verse[data-book="${bookIdx}"][data-chapter="${chapterIdx}"][data-verse="${verseIdx}"]`);
+            elements.forEach(el => {
+                el.style.backgroundColor = color === 'none' ? '' : color;
+            });
+        }
+
+        function buildIndex() {
+            searchIndex = [];
+            allBooks.forEach((book, bookIndex) => {
+                const chapters = getChapters(book);
+                chapters.forEach((chapter, chapterIndex) => {
+                    if (!Array.isArray(chapter)) return;
+                    chapter.forEach((verse, verseIndex) => {
+                        const text = getVerseText(verse).toLowerCase();
+                        searchIndex.push({ bookIndex, chapterIndex, verseIndex, text });
+                    });
+                });
+            });
+        }
+
+        async function loadBible() {
+            try {
+                const url = 'https://raw.githubusercontent.com/thiagobodruk/bible/refs/heads/master/json/ru_synodal.json';
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                allBooks = findBibleBooks(data);
+                if (allBooks.length === 0) throw new Error('Не удалось найти книги в JSON');
+                buildIndex();
+                renderBookButtons();
+                selectBook(0);
+            } catch (error) {
+                debug('Ошибка: ' + error.message);
+                let helpMsg = '';
+                if (location.protocol === 'file:') {
+                    helpMsg = `<div class="help-box"><strong>Вы открыли файл локально (file://).</strong><br>Запустите локальный сервер:<br><code>python3 -m http.server 8000</code> (Python)<br>или <code>npx serve .</code> (Node.js)<br>Затем откройте <code>http://localhost:8000</code></div>`;
+                }
+                document.getElementById('bibleText').innerHTML = `
+                    <div class="error">
+                        <h3>Ошибка загрузки</h3>
+                        <p>${error.message}</p>
+                        ${helpMsg}
+                    </div>`;
+            }
+        }
+
+        function renderBookButtons() {
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+            allBooks.forEach((book, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'book-btn';
+                btn.textContent = getBookEnName(book);
+                btn.title = getBookEnAbbrev(book);
+                btn.onclick = () => selectBook(index);
+                bookList.appendChild(btn);
+            });
+        }
+
+        function selectBook(index) {
+            currentBookIndex = index;
+            currentChapter = 0;
+            document.querySelectorAll('.book-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            renderChapterButtons();
+            const chapters = getChapters(allBooks[index]);
+            if (chapters.length > 0) {
+                selectChapter(0);
+            } else {
+                document.getElementById('bibleText').innerHTML = '<div class="error">В книге не найдено глав</div>';
+            }
+        }
+
+        function renderChapterButtons() {
+            const chapterNav = document.getElementById('chapterNav');
+            const chapters = getChapters(allBooks[currentBookIndex]);
+            chapterNav.style.display = 'flex';
+            chapterNav.innerHTML = '';
+            for (let i = 0; i < chapters.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.textContent = i + 1;
+                btn.onclick = () => selectChapter(i);
+                chapterNav.appendChild(btn);
+            }
+        }
+
+        function selectChapter(index) {
+            currentChapter = index;
+            document.querySelectorAll('.chapter-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            renderVerses();
+        }
+
+        function renderVerses() {
+            const bibleText = document.getElementById('bibleText');
+            const book = allBooks[currentBookIndex];
+            const chapters = getChapters(book);
+            const chapter = chapters[currentChapter];
+            if (!chapter || !Array.isArray(chapter) || chapter.length === 0) {
+                bibleText.innerHTML = '<div class="error">Глава пуста или не найдена</div>';
+                return;
+            }
+            let html = `<h2>${getBookEnName(book)} — Chapter ${currentChapter + 1}</h2>`;
+            chapter.forEach((verse, verseIndex) => {
+                const verseNum = getVerseNumber(verse, verseIndex);
+                const verseText = getVerseText(verse);
+                const color = getHighlightColor(currentBookIndex, currentChapter, verseIndex);
+                const style = color ? `style="background-color:${color}"` : '';
+                html += `
+                    <div class="verse" data-book="${currentBookIndex}" data-chapter="${currentChapter}" data-verse="${verseIndex}" ${style}>
+                        <span class="verse-num">${verseNum}</span>${escapeHtml(verseText)}
+                    </div>`;
+            });
+            bibleText.innerHTML = html;
+        }
+
+        const MAX_SEARCH_RESULTS = 200;
+        const searchInput = document.getElementById('searchInput');
+        let debounceTimer;
+
+        function performSearch(query) {
+            const bibleText = document.getElementById('bibleText');
+            if (query === '') {
+                if (allBooks.length > 0) renderVerses();
+                return;
+            }
+
+            const matches = searchIndex.filter(item => item.text.includes(query));
+            const totalFound = matches.length;
+
+            if (totalFound === 0) {
+                bibleText.innerHTML = '<div class="loading">Ничего не найдено</div>';
+                return;
+            }
+
+            const limited = matches.slice(0, MAX_SEARCH_RESULTS);
+            let html = `<h2>Результаты поиска: «${escapeHtml(query)}» (${totalFound})</h2>`;
+            if (totalFound > MAX_SEARCH_RESULTS) {
+                html += `<p class="search-info">Показаны первые ${MAX_SEARCH_RESULTS} из ${totalFound} совпадений</p>`;
+            }
+
+            for (const r of limited) {
+                const book = allBooks[r.bookIndex];
+                const chapter = getChapters(book)[r.chapterIndex];
+                const verse = chapter[r.verseIndex];
+                const verseNum = getVerseNumber(verse, r.verseIndex);
+                const verseText = getVerseText(verse);
+                const enAbbrev = getBookEnAbbrev(book);
+                const color = getHighlightColor(r.bookIndex, r.chapterIndex, r.verseIndex);
+                const style = color ? `style="background-color:${color}"` : '';
+                html += `
+                    <div class="verse" data-book="${r.bookIndex}" data-chapter="${r.chapterIndex}" data-verse="${r.verseIndex}" ${style}>
+                        <span class="verse-num">${enAbbrev} ${r.chapterIndex + 1}:${verseNum}</span>
+                        ${highlightText(verseText, query)}
+                    </div>`;
+            }
+
+            bibleText.innerHTML = html;
+        }
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim().toLowerCase();
+            debounceTimer = setTimeout(() => performSearch(query), 500);
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function highlightText(text, query) {
+            const escaped = escapeHtml(text);
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return escaped.replace(regex, '<mark>$1</mark>');
+        }
+
+        // Модальное окно
+        const modalOverlay = document.getElementById('verseModal');
+        const modalRef = document.getElementById('modalRef');
+        const modalText = document.getElementById('modalText');
+        const closeModalBtn = document.getElementById('closeModal');
+        let currentModalVerse = null;
+
+        function showModal(bookIndex, chapterIndex, verseIndex) {
+            const book = allBooks[bookIndex];
+            const chapters = getChapters(book);
+            const chapter = chapters[chapterIndex];
+            const verse = chapter[verseIndex];
+            const verseNum = getVerseNumber(verse, verseIndex);
+            const verseText = getVerseText(verse);
+            const enName = getBookEnName(book);
+            const enAbbrev = getBookEnAbbrev(book);
+
+            modalRef.textContent = `${enName} (${enAbbrev} ${chapterIndex + 1}:${verseNum})`;
+            modalText.textContent = verseText;
+            const color = getHighlightColor(bookIndex, chapterIndex, verseIndex);
+            modalText.style.backgroundColor = color || '#fcf8f0';
+
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                const btnColor = btn.dataset.color;
+                if (btnColor === color || (btnColor === 'none' && !color)) {
+                    btn.classList.add('active-color');
+                } else {
+                    btn.classList.remove('active-color');
+                }
+            });
+
+            currentModalVerse = { bookIndex, chapterIndex, verseIndex };
+            modalOverlay.classList.add('active');
+        }
+
+        function hideModal() {
+            modalOverlay.classList.remove('active');
+            currentModalVerse = null;
+        }
+
+        closeModalBtn.addEventListener('click', hideModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) hideModal();
+        });
+
+        document.getElementById('bibleText').addEventListener('click', (e) => {
+            const verseDiv = e.target.closest('.verse');
+            if (!verseDiv) return;
+            const bookIdx = parseInt(verseDiv.dataset.book, 10);
+            const chapterIdx = parseInt(verseDiv.dataset.chapter, 10);
+            const verseIdx = parseInt(verseDiv.dataset.verse, 10);
+            if (!isNaN(bookIdx) && !isNaN(chapterIdx) && !isNaN(verseIdx)) {
+                showModal(bookIdx, chapterIdx, verseIdx);
+            }
+        });
+
+        document.querySelector('.palette').addEventListener('click', (e) => {
+            const colorBtn = e.target.closest('.color-btn');
+            if (!colorBtn || !currentModalVerse) return;
+            const color = colorBtn.dataset.color;
+            const { bookIndex, chapterIndex, verseIndex } = currentModalVerse;
+
+            setHighlightColor(bookIndex, chapterIndex, verseIndex, color === 'none' ? '' : color);
+            modalText.style.backgroundColor = color === 'none' ? '#fcf8f0' : color;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active-color'));
+            colorBtn.classList.add('active-color');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                hideModal();
+            }
+        });
+
+        loadBible();
+    </script>
+</body>
+</html>
